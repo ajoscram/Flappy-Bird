@@ -9,18 +9,20 @@ public class GameOverTitle extends Entity implements Drawable {
     private Texture texture;
 
     public GameOverTitle(float x, float y){
-        super();
+        super(0,0, 0, 0);
         this.texture = new Texture("game_over.png");
 
-        this.x = x - (texture.getWidth()/2);
-        this.y = y - (texture.getHeight());
-        this.startingX = this.x;
-        this.startingY = this.y;
+        this.x = this.startingX = x - (texture.getWidth()/2);
+        this.y = this.startingY = y - (texture.getHeight());
 
         this.width = texture.getWidth();
         this.height = texture.getHeight();
 
         this.velocity = 0;
+    }
+
+    public float getHeight(){
+        return texture.getHeight();
     }
 
     @Override

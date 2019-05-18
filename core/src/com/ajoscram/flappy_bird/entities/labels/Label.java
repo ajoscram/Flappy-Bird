@@ -13,7 +13,7 @@ public class Label extends Entity implements Drawable {
     protected String text;
 
     public Label(float x, float y, String text, BitmapFont font){
-        super(x, y);
+        super(x, y, 0, 0);
 
         this.text = text;
         this.font = font;

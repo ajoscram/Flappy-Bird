@@ -2,19 +2,21 @@ package com.ajoscram.flappy_bird;
 
 import com.ajoscram.flappy_bird.entities.Bird;
 import com.ajoscram.flappy_bird.entities.Boundary;
-import com.ajoscram.flappy_bird.entities.Entity;
 import com.ajoscram.flappy_bird.entities.GameOverTitle;
 
 import com.ajoscram.flappy_bird.entities.labels.Score;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.ArrayList;
 import java.util.Stack;
+
 
 public class Game extends ApplicationAdapter {
 
@@ -23,7 +25,6 @@ public class Game extends ApplicationAdapter {
 	private float verticalGap;
 	private float verticalGapBound;
 	private float horizontalGap;
-
 	private float gravity;
 	private float push;
 	private float maxBirdVelocity;
@@ -31,7 +32,16 @@ public class Game extends ApplicationAdapter {
 	private int birdFlapSpeed;
 	private int columnNumber;
 
+	private int lastColumnIndex; //last column positionally on the screen
 	private boolean lost;
+
+	private boolean drawCollidables;
+	private boolean drawDrawables;
+	private Color birdColor;
+	private Color obstacleColor;
+	private Color targetColor;
+
+	private ShapeRenderer renderer;
 
 	private SpriteBatch batch;
 	private Texture background;
@@ -40,8 +50,8 @@ public class Game extends ApplicationAdapter {
 	private Bird bird;
 	private GameOverTitle gameOverTitle;
 	private ArrayList<Column> columns;
-	private ArrayList<Entity> obstacles;
-	private ArrayList<Entity> targets;
+	private ArrayList<Collidable> obstacles;
+	private ArrayList<Collidable> targets;
 	private Stack<Drawable> drawables;
 
 	@Override
@@ -54,15 +64,25 @@ public class Game extends ApplicationAdapter {
 		height = Gdx.graphics.getHeight();
 		verticalGap = 550;
 		verticalGapBound = 100;
-		horizontalGap = 500;
+		horizontalGap = 600;
 
 		gravity = -1.5f;
 		push = 25f;
 		maxBirdVelocity = 50f;
 		columnVelocity = -11f;
 		birdFlapSpeed = 10;
-		columnNumber = 4;
+		columnNumber = 2;
+		lastColumnIndex = columnNumber - 1;
 		lost = false;
+
+		//debugging variables
+		drawCollidables = false;
+		drawDrawables  = true;
+		renderer = new ShapeRenderer();
+		renderer.setAutoShapeType(true);
+		birdColor = new Color(0, 0, 1, 0.8f);
+		obstacleColor = new Color(1, 0, 0, 0.8f);
+		targetColor = new Color(Color.rgba8888(0, 1, 0, 0.8f));
 
 		//entities
 		score = new Score(width/2, (height/10)*9, new BitmapFont(Gdx.files.internal("fonts/score.fnt")));
@@ -116,8 +136,10 @@ public class Game extends ApplicationAdapter {
 				//move the columns
 				for(Column column : columns){
 					if(column.getX() + column.getWidth() < 0 ){
-						column.setX(width + (horizontalGap + column.getWidth()) * (columns.size()-1));
+						Column last = columns.get(lastColumnIndex);
+						column.setX(last.getX() + column.getWidth() + horizontalGap);
 						column.moveGap();
+						lastColumnIndex = (lastColumnIndex + 1) % columns.size();
 					}
 					else
 						column.move(Movable.Direction.X);
@@ -141,21 +163,42 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
 		update();
 
-		batch.begin();
-		batch.draw(background, 0, 0, width, height);
-		for(Drawable drawable : drawables)
-			drawable.draw(batch);
-		batch.end();
+		if(drawDrawables) {
+			batch.begin();
+			batch.draw(background, 0, 0, width, height);
+			for (Drawable drawable : drawables)
+				drawable.draw(batch);
+			batch.end();
+		}
+
+		if(drawCollidables){
+			renderer.begin(ShapeRenderer.ShapeType.Filled);
+			renderer.setColor(targetColor);
+			for(Collidable target : targets)
+				target.draw(renderer);
+
+			renderer.setColor(birdColor);
+			bird.draw(renderer);
+
+			renderer.setColor(obstacleColor);
+			for(Collidable obstacle : obstacles)
+				obstacle.draw(renderer);
+
+			renderer.end();
+		}
     }
 	
 	@Override
 	public void dispose(){
 		batch.dispose();
+		renderer.dispose();
 		background.dispose();
 		for(Drawable drawable : drawables)
 		    drawable.dispose();
@@ -181,6 +224,7 @@ public class Game extends ApplicationAdapter {
 
 	private void reset(){
 		lost = false;
+		lastColumnIndex = columnNumber - 1;
 		bird.reset();
 		score.reset();
 		for(Column column : columns) {

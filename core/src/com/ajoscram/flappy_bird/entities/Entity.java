@@ -1,48 +1,37 @@
 package com.ajoscram.flappy_bird.entities;
 
+import com.ajoscram.flappy_bird.Collidable;
 import com.ajoscram.flappy_bird.Movable;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 
-public abstract class Entity implements Movable {
-    public static final int NONE = -1;
+import java.util.ArrayList;
+import java.util.List;
 
+public abstract class Entity implements Movable, Collidable {
     protected float x;
     protected float y;
     protected float startingX;
     protected float startingY;
-
     protected float width;
     protected float height;
+
+    protected ArrayList<Circle> circles;
+    protected ArrayList<Rectangle> rectangles;
 
     protected float velocity;
     private boolean stationary;
 
     public Entity(float x, float y, float width, float height){
-        this.x = x;
-        this.y = y;
-        this.startingX = x;
-        this.startingY = y;
-
+        this.x = this.startingX = x;
+        this.y = this.startingY = y;
         this.width = width;
         this.height = height;
 
-        this.velocity = 0;
-        this.stationary = true;
-    }
-
-    public Entity(float x, float y){
-        this.x = x;
-        this.y = y;
-        this.startingX = x;
-        this.startingY = y;
-
-        width = height = NONE;
-
-        this.velocity = 0;
-        this.stationary = true;
-    }
-
-    public Entity(){
-        x = startingX = y = startingY = width = height = NONE;
+        this.circles = new ArrayList();
+        this.rectangles = new ArrayList();
 
         this.velocity = 0;
         this.stationary = true;
@@ -53,6 +42,15 @@ public abstract class Entity implements Movable {
     }
 
     public void setX(float x){
+        float offset;
+        for(Circle circle : circles) {
+            offset = circle.x - this.x;
+            circle.setX(x + offset);
+        }
+        for(Rectangle rectangle : rectangles) {
+            offset = rectangle.x - this.x;
+            rectangle.setX(x + offset);
+        }
         this.x = x;
     }
 
@@ -65,6 +63,15 @@ public abstract class Entity implements Movable {
     }
 
     public void setY(float y){
+        float offset;
+        for(Circle circle : circles) {
+            offset = circle.y - this.y;
+            circle.setY(y + offset);
+        }
+        for(Rectangle rectangle : rectangles) {
+            offset = rectangle.y - this.y;
+            rectangle.setY(y + offset);
+        }
         this.y = y;
     }
 
@@ -78,6 +85,14 @@ public abstract class Entity implements Movable {
 
     public float getHeight(){
         return height;
+    }
+
+    public void addCircle(float xOffset, float yOffset, float radius){
+        circles.add(new Circle(x + xOffset, y + yOffset, radius));
+    }
+
+    public void addRectangle(float xOffset, float yOffset, float width, float height){
+        rectangles.add(new Rectangle(x + xOffset, y + yOffset, width, height));
     }
 
     public float getVelocity(){
@@ -101,9 +116,9 @@ public abstract class Entity implements Movable {
     @Override
     public void move(Direction direction){
         if(direction == Direction.X || direction == Direction.BOTH)
-            x += velocity;
+            setX(x + velocity);
         if(direction == Direction.Y || direction == Direction.BOTH)
-            y += velocity;
+            setY(y + velocity);
         this.stationary = false;
     }
 
@@ -115,8 +130,56 @@ public abstract class Entity implements Movable {
 
     @Override
     public void reset(){
-        this.x = startingX;
-        this.y = startingY;
+        setX(startingX);
+        setY(startingY);
         this.stop();
+    }
+
+    //Collidable
+    @Override
+    public List<Circle> getCircles(){
+        return circles;
+    }
+
+    @Override
+    public List<Rectangle> getRectangles(){
+        return rectangles;
+    }
+
+    @Override
+    public boolean collides(Collidable collidable){
+        for(Circle own : circles) {
+            for(Circle circle : collidable.getCircles())
+                if(Intersector.overlaps(own, circle))
+                    return true;
+            for(Rectangle rectangle : collidable.getRectangles())
+                if(Intersector.overlaps(own, rectangle))
+                    return true;
+        }
+        for(Rectangle own : rectangles) {
+            for(Circle circle : collidable.getCircles())
+                if(Intersector.overlaps(circle, own))
+                    return true;
+            for(Rectangle rectangle : collidable.getRectangles())
+                if(Intersector.overlaps(own, rectangle))
+                    return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean collides(List<Collidable> collidables){
+        for(Collidable collidable : collidables)
+            if(this.collides(collidable))
+                return true;
+        return false;
+    }
+
+    @Override
+    public void draw(ShapeRenderer renderer){
+        for(Rectangle rectangle : rectangles)
+            renderer.rect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        for(Circle circle : circles)
+            renderer.circle(circle.x, circle.y, circle.radius);
     }
 }

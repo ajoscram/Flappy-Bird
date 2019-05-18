@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Bird extends Entity implements Drawable {
     private ArrayList<Texture> textures;
@@ -17,38 +16,25 @@ public class Bird extends Entity implements Drawable {
     private float maxVelocity;
 
     public Bird(float x, float y, float maxVelocity, int flapSpeed){
-        super();
+        super(0, y, 0, 0);
 
         this.textures = new ArrayList();
         this.textures.add(new Texture("bird.png"));
         this.textures.add(new Texture("bird2.png"));
+
         this.frameCount = 0;
         this.flapSpeed = flapSpeed;
         this.flapCount = 0;
 
-        this.x = x - (textures.get(0).getWidth()/2);
-        this.y = y - (textures.get(0).getHeight()/2);
-        this.startingX = this.x;
-        this.startingY = this.y;
+        this.x = this.startingX = x - textures.get(0).getWidth()/2;
+
+        this.width = textures.get(0).getWidth();
+        this.height = textures.get(0).getHeight();
 
         this.maxVelocity = maxVelocity;
-    }
 
-    public boolean collides(List<Entity> entities){
-        for(Entity entity : entities)
-            if(this.collides(entity))
-                return true;
-        return false;
-    }
-
-    public boolean collides(Entity entity){
-        if( this.x < entity.getX() + entity.getWidth() &&
-            this.x + this.getWidth() > entity.getX() &&
-            this.y < entity.getY() + entity.getHeight() &&
-            this.y + this.getHeight() > entity.getY())
-            return true;
-        else
-            return false;
+        addCircle(width/2, this.height/2, this.height/2);
+        addRectangle(95, 12,37, 35);
     }
 
     private Texture getTexture(){
@@ -60,16 +46,6 @@ public class Bird extends Entity implements Drawable {
             flapCount++;
         }
         return textures.get(frameCount);
-    }
-
-    @Override
-    public float getWidth(){
-        return textures.get(frameCount).getWidth();
-    }
-
-    @Override
-    public float getHeight(){
-        return textures.get(frameCount).getHeight();
     }
 
     @Override

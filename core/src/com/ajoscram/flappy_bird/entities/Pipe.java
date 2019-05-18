@@ -11,13 +11,17 @@ public class Pipe extends Entity implements Drawable {
     private Texture texture;
 
     public Pipe(float x, float y, Direction direction){
-        super(x, y);
+        super(x, y, 0, 0);
+
         if(direction == Direction.TOP)
             this.texture = new Texture("toptube.png");
         else if(direction == Direction.BOTTOM)
             this.texture = new Texture("bottomtube.png");
-        this.height = texture.getHeight();
+
         this.width = texture.getWidth();
+        this.height = texture.getHeight();
+
+        addRectangle(0, 0, width, height);
     }
 
     //Drawable
