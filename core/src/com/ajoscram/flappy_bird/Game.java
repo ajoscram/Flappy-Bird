@@ -1,5 +1,6 @@
 package com.ajoscram.flappy_bird;
 
+import com.ajoscram.flappy_bird.scenes.MenuScene;
 import com.ajoscram.flappy_bird.scenes.PlayScene;
 import com.ajoscram.flappy_bird.scenes.Scene;
 import com.ajoscram.flappy_bird.scenes.SceneManager;
@@ -16,9 +17,6 @@ public class Game extends ApplicationAdapter {
 	private float width;
 	private float height;
 
-	private float verticalGap;
-	private float horizontalGap;
-	private float columnVelocity;
 	private boolean drawCollidables;
 
 	private ShapeRenderer renderer;
@@ -31,18 +29,15 @@ public class Game extends ApplicationAdapter {
 	public void create () {
 		width = Gdx.graphics.getWidth();
 		height = Gdx.graphics.getHeight();
-		verticalGap = 550;
-		horizontalGap = 600;
-		columnVelocity = -11f;
 
 		batch = new SpriteBatch();
 		renderer = new ShapeRenderer();
 		renderer.setAutoShapeType(true);
 		background = new Texture("bg.png");
-		drawCollidables = true;
+		drawCollidables = false;
 
 		manager = new SceneManager();
-		manager.push(new PlayScene(manager, verticalGap, horizontalGap, columnVelocity));
+		manager.push(new MenuScene(manager));
 
 		//setting gdx to clear the screen to black when glClear is called in render
 		Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -53,18 +48,20 @@ public class Game extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		Scene scene = manager.peek();
-		scene.update();
 
 		batch.begin();
 		batch.draw(background, 0, 0, width, height);
 		scene.draw(batch);
 		batch.end();
 
+		//render debugging info
 		if(drawCollidables && scene instanceof PlayScene) {
 			renderer.begin(ShapeRenderer.ShapeType.Filled);
 			((PlayScene)scene).draw(renderer);
 			renderer.end();
 		}
+
+		scene.update();
     }
 	
 	@Override

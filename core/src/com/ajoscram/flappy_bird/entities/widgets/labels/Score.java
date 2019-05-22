@@ -1,4 +1,4 @@
-package com.ajoscram.flappy_bird.entities.labels;
+package com.ajoscram.flappy_bird.entities.widgets.labels;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
@@ -7,14 +7,10 @@ public class Score extends Label {
     private boolean scoring;
 
     public Score(float x, float y, BitmapFont font){
-        super(x, y, "0", font);
+        super(x, y, true,"0", font);
+        this.startingX = x;
         this.score = 0;
         this.scoring = false;
-
-        this.x = x - layout.width/2;
-        this.y = y - layout.height/2;
-        this.startingX = x;
-        this.startingY = this.y;
     }
 
     public void score(){
@@ -22,7 +18,7 @@ public class Score extends Label {
             scoring = true;
             score++;
             setText(Integer.toString(score));
-            x = startingX - layout.width / 2;
+            x = startingX - width / 2;
         }
     }
 
@@ -35,7 +31,7 @@ public class Score extends Label {
         super.reset();
         score = 0;
         setText(Integer.toString(score));
-        x = startingX - layout.width / 2;
+        x = startingX - width / 2;
     }
 
 }

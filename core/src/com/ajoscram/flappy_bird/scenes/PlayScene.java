@@ -6,8 +6,8 @@ import com.ajoscram.flappy_bird.Drawable;
 import com.ajoscram.flappy_bird.Movable;
 import com.ajoscram.flappy_bird.entities.Bird;
 import com.ajoscram.flappy_bird.entities.Boundary;
-import com.ajoscram.flappy_bird.entities.GameOverTitle;
-import com.ajoscram.flappy_bird.entities.labels.Score;
+import com.ajoscram.flappy_bird.entities.widgets.Button;
+import com.ajoscram.flappy_bird.entities.widgets.labels.Score;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -19,17 +19,29 @@ import java.util.Stack;
 
 public final class PlayScene extends Scene {
 
+    public enum Difficulty{ EASY, NORMAL, HARD }
+
     //difficulty - easy
+    private static final float EASY_HORIZONTAL_GAP = 550;
+    private static final float EASY_VERTICAL_GAP = 600;
+    private static final float EASY_COLUMN_VELOCITY = -8;
+
+    //difficulty - normal
+    private static final float NORMAL_HORIZONTAL_GAP = 550;
+    private static final float NORMAL_VERTICAL_GAP = 600;
+    private static final float NORMAL_COLUMN_VELOCITY = -11;
+
+    //difficulty - hard
+    private static final float HARD_HORIZONTAL_GAP = 550;
+    private static final float HARD_VERTICAL_GAP = 550;
+    private static final float HARD_COLUMN_VELOCITY = -13;
+
+    //difficulty
     private float horizontalGap;
     private float verticalGap;
     private float columnVelocity;
 
-    //difficulty - medium
-    //difficulty - hard
-
     //default
-    private float width;
-    private float height;
     private float verticalGapBound;
     private float gravity;
     private float push;
@@ -37,7 +49,6 @@ public final class PlayScene extends Scene {
     private int birdFlapSpeed;
     private int columnNumber;
     private int lastColumnIndex; //last column positionally on the screen
-    private boolean lost;
 
     //debugging
     private Color birdColor;
@@ -45,25 +56,33 @@ public final class PlayScene extends Scene {
     private Color targetColor;
 
     //entities
+    private Button pauseButton;
     private Score score;
     private Bird bird;
-    private GameOverTitle gameOverTitle;
     private ArrayList<Column> columns;
     private Stack<Drawable> drawables;
     private ArrayList<Collidable> obstacles;
     private ArrayList<Collidable> targets;
 
-    public PlayScene(SceneManager manager, float verticalGap, float horizontalGap, float columnVelocity){
+    public PlayScene(SceneManager manager, Difficulty difficulty){
         super(manager);
 
         //difficulty
-        this.verticalGap = verticalGap;
-        this.columnVelocity = columnVelocity;
-        this.horizontalGap = horizontalGap;
+        if(difficulty == Difficulty.EASY) {
+            this.verticalGap = EASY_VERTICAL_GAP;
+            this.columnVelocity = EASY_COLUMN_VELOCITY;
+            this.horizontalGap = EASY_HORIZONTAL_GAP;
+        } else if(difficulty == Difficulty.NORMAL) {
+            this.verticalGap = NORMAL_VERTICAL_GAP;
+            this.columnVelocity = NORMAL_COLUMN_VELOCITY;
+            this.horizontalGap = NORMAL_HORIZONTAL_GAP;
+        } else if(difficulty == Difficulty.HARD) {
+            this.verticalGap = HARD_VERTICAL_GAP;
+            this.columnVelocity = HARD_COLUMN_VELOCITY;
+            this.horizontalGap = HARD_HORIZONTAL_GAP;
+        }
 
         //default
-        width = Gdx.graphics.getWidth();
-        height = Gdx.graphics.getHeight();
         verticalGapBound = 100;
         gravity = -1.5f;
         push = 25f;
@@ -71,7 +90,6 @@ public final class PlayScene extends Scene {
         birdFlapSpeed = 10;
         columnNumber = 2;
         lastColumnIndex = columnNumber - 1;
-        lost = false;
 
         //debugging
         birdColor = new Color(0, 0, 1, 0.5f);
@@ -79,9 +97,8 @@ public final class PlayScene extends Scene {
         targetColor = new Color(0, 1, 0, 0.5f);
 
         //entities
+        pauseButton = new Button(width/12*10, height/12*1, true, "btn_pause.png");
         score = new Score(width/2, (height/10)*9, new BitmapFont(Gdx.files.internal("fonts/score.fnt")));
-        gameOverTitle = new GameOverTitle(width / 2, 0);
-        gameOverTitle.accelerate(30f);
         bird = new Bird(width/4, height/2, maxBirdVelocity, birdFlapSpeed);
         columns = getColumns(columnNumber);
 
@@ -104,6 +121,8 @@ public final class PlayScene extends Scene {
             //adding the gap as a target
             targets.add(column.getGap());
         }
+        //finally pushing drawn elements on top of other drawables
+        drawables.push(pauseButton);
         drawables.push(score);
     }
 
@@ -121,48 +140,37 @@ public final class PlayScene extends Scene {
 
     @Override
     public void update() {
-        if(!lost) {
-            if(bird.collides(obstacles))
-                lost = true;
-            else {
-                //check for scoring
-                if(bird.collides(targets))
-                    score.score();
-                else
-                    score.stopScoring();
+        if(pauseButton.isClicked()){
+            this.stop();
+            manager.push(new PauseScene(manager, this));
+        } else if(!bird.collides(obstacles)){
+            //check for scoring
+            if(bird.collides(targets))
+                score.score();
+            else
+                score.stopScoring();
 
-                //move the bird
-                if (Gdx.input.justTouched())
-                    bird.setVelocity(push);
-                else
-                    bird.accelerate(gravity);
-                bird.move(Movable.Direction.Y);
+            //move the bird
+            if (Gdx.input.justTouched())
+                bird.setVelocity(push);
+            else
+                bird.accelerate(gravity);
+            bird.move(Movable.Direction.Y);
 
-                //move the columns
-                for(Column column : columns){
-                    if(column.getX() + column.getWidth() < 0 ){
-                        Column last = columns.get(lastColumnIndex);
-                        column.setX(last.getX() + column.getWidth() + horizontalGap);
-                        column.moveGap();
-                        lastColumnIndex = (lastColumnIndex + 1) % columns.size();
-                    }
-                    else
-                        column.move(Movable.Direction.X);
+            //move the columns
+            for(Column column : columns){
+                if(column.getX() + column.getWidth() < 0 ){
+                    Column last = columns.get(lastColumnIndex);
+                    column.setX(last.getX() + column.getWidth() + horizontalGap);
+                    column.moveGap();
+                    lastColumnIndex = (lastColumnIndex + 1) % columns.size();
                 }
+                else
+                    column.move(Movable.Direction.X);
             }
         } else {
-            if(gameOverTitle.isStopped()) {
-                drawables.push(gameOverTitle);
-                gameOverTitle.resume();
-                stop();
-            }
-            if(gameOverTitle.getY() <= (height - gameOverTitle.getHeight())/2)//move the title to the middle of the screen
-                gameOverTitle.move(Movable.Direction.Y);
-            else if(Gdx.input.justTouched()){
-                gameOverTitle.reset();
-                drawables.remove(gameOverTitle);
-                reset();
-            }
+            this.stop();
+            manager.push(new GameOverScene(manager, this));
         }
     }
 
@@ -183,7 +191,8 @@ public final class PlayScene extends Scene {
     @Override
     public void draw(Batch batch) {
         for(Drawable drawable : drawables)
-            drawable.draw(batch);
+            if(!this.isStopped() || (this.isStopped() && drawable != pauseButton))
+                drawable.draw(batch);
     }
 
     @Override
@@ -209,8 +218,7 @@ public final class PlayScene extends Scene {
             column.resume();
     }
 
-    private void reset(){
-        lost = false;
+    public void reset(){
         lastColumnIndex = columnNumber - 1;
         bird.reset();
         score.reset();

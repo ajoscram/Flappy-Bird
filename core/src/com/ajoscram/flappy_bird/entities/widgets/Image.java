@@ -1,28 +1,21 @@
-package com.ajoscram.flappy_bird.entities;
+package com.ajoscram.flappy_bird.entities.widgets;
 
 import com.ajoscram.flappy_bird.Drawable;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
-public class GameOverTitle extends Entity implements Drawable {
+public class Image extends Widget implements Drawable {
 
     private Texture texture;
 
-    public GameOverTitle(float x, float y){
-        super(0,0, 0, 0);
-        this.texture = new Texture("game_over.png");
-
-        this.x = this.startingX = x - (texture.getWidth()/2);
-        this.y = this.startingY = y - (texture.getHeight());
-
+    public Image(float x, float y, boolean center, String texturePath){
+        super(x, y, 0, 0);
+        this.texture = new Texture(texturePath);
         this.width = texture.getWidth();
         this.height = texture.getHeight();
+        if(center)
+            this.center(true);
         this.stopped = true;
-        this.velocity = 0;
-    }
-
-    public float getHeight(){
-        return texture.getHeight();
     }
 
     @Override
