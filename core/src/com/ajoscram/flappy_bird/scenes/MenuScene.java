@@ -2,7 +2,6 @@ package com.ajoscram.flappy_bird.scenes;
 
 import com.ajoscram.flappy_bird.entities.widgets.Button;
 import com.ajoscram.flappy_bird.entities.widgets.Image;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
 public final class MenuScene extends Scene {

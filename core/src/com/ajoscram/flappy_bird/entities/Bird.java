@@ -1,12 +1,16 @@
 package com.ajoscram.flappy_bird.entities;
 
 import com.ajoscram.flappy_bird.Drawable;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
 import java.util.ArrayList;
 
 public class Bird extends Entity implements Drawable {
+    private Sound woop;
+
     private ArrayList<Texture> textures;
     private int frameCount;
 
@@ -17,6 +21,8 @@ public class Bird extends Entity implements Drawable {
 
     public Bird(float x, float y, float maxVelocity, int flapSpeed){
         super(0, y, 0, 0);
+
+        this.woop = Gdx.audio.newSound(Gdx.files.internal("woop.mp3"));
 
         this.textures = new ArrayList();
         this.textures.add(new Texture("bird.png"));
@@ -51,6 +57,7 @@ public class Bird extends Entity implements Drawable {
     @Override
     public void setVelocity(float amount){
         super.setVelocity(amount);
+        woop.play(0.5f);
         this.accelerate(0); //called to upper bound the velocity
     }
 
@@ -78,6 +85,7 @@ public class Bird extends Entity implements Drawable {
 
     @Override
     public void dispose(){
+        woop.dispose();
         for(Texture sprite : textures)
             sprite.dispose();
     }
