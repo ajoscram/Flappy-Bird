@@ -33,12 +33,12 @@ public class Bird extends Entity implements Drawable {
 
         this.maxVelocity = maxVelocity;
 
-        addCircle(width/2, this.height/2, this.height/2);
+        addCircle(this.width/2, this.height/2, this.height/2);
         addRectangle(95, 12,37, 35);
     }
 
     private Texture getTexture(){
-        if(!this.isStationary()) {
+        if(!this.isStopped()) {
             if (flapCount == flapSpeed) {
                 flapCount = 0;
                 frameCount = (++frameCount) % textures.size();
@@ -62,6 +62,12 @@ public class Bird extends Entity implements Drawable {
             velocity = maxVelocity;
         else if(velocity < -maxVelocity)
             velocity = -maxVelocity;
+    }
+
+    @Override
+    public void reset(){
+        super.reset();
+        this.setVelocity(0);
     }
 
     //Drawable

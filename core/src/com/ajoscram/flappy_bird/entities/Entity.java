@@ -2,6 +2,7 @@ package com.ajoscram.flappy_bird.entities;
 
 import com.ajoscram.flappy_bird.Collidable;
 import com.ajoscram.flappy_bird.Movable;
+import com.ajoscram.flappy_bird.Stoppable;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Intersector;
@@ -10,7 +11,7 @@ import com.badlogic.gdx.math.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Entity implements Movable, Collidable {
+public abstract class Entity implements Movable, Stoppable, Collidable {
     protected float x;
     protected float y;
     protected float startingX;
@@ -22,7 +23,7 @@ public abstract class Entity implements Movable, Collidable {
     protected ArrayList<Rectangle> rectangles;
 
     protected float velocity;
-    private boolean stationary;
+    protected boolean stopped;
 
     public Entity(float x, float y, float width, float height){
         this.x = this.startingX = x;
@@ -34,7 +35,7 @@ public abstract class Entity implements Movable, Collidable {
         this.rectangles = new ArrayList();
 
         this.velocity = 0;
-        this.stationary = true;
+        this.stopped = false;
     }
 
     public float getX(){
@@ -103,10 +104,6 @@ public abstract class Entity implements Movable, Collidable {
         this.velocity = amount;
     }
 
-    public boolean isStationary(){
-        return stationary;
-    }
-
     //Movable
     @Override
     public void accelerate(float amount){
@@ -115,24 +112,35 @@ public abstract class Entity implements Movable, Collidable {
 
     @Override
     public void move(Direction direction){
-        if(direction == Direction.X || direction == Direction.BOTH)
-            setX(x + velocity);
-        if(direction == Direction.Y || direction == Direction.BOTH)
-            setY(y + velocity);
-        this.stationary = false;
-    }
-
-    @Override
-    public void stop() {
-        this.velocity = 0;
-        this.stationary = true;
+        if(!stopped) {
+            if (direction == Direction.X || direction == Direction.BOTH)
+                setX(x + velocity);
+            if (direction == Direction.Y || direction == Direction.BOTH)
+                setY(y + velocity);
+        }
     }
 
     @Override
     public void reset(){
         setX(startingX);
         setY(startingY);
-        this.stop();
+        this.resume();
+    }
+
+    //Stoppable
+    @Override
+    public void stop() {
+        this.stopped = true;
+    }
+
+    @Override
+    public void resume(){
+        this.stopped = false;
+    }
+
+    @Override
+    public boolean isStopped(){
+        return stopped;
     }
 
     //Collidable

@@ -5,7 +5,7 @@ import com.ajoscram.flappy_bird.entities.Pipe;
 
 import java.util.Random;
 
-public class Column implements Movable{
+public class Column implements Movable, Stoppable{
 
     private float height;
     private float gapHeight;
@@ -14,6 +14,8 @@ public class Column implements Movable{
     private Pipe top;
     private Boundary gap;
     private Pipe bottom;
+
+    private boolean stopped;
 
     public Column(float x, float height, float gap, float bound){
         this.height = height;
@@ -26,6 +28,8 @@ public class Column implements Movable{
         this.bottom.setY(gapY - bottom.getHeight());
         this.bottom.setStartingY(gapY - bottom.getHeight());
         this.gap = new Boundary(x, gapY, top.getWidth(), gapHeight);
+
+        this.stopped = false;
     }
 
     private final float getRandomGapY(){
@@ -77,16 +81,11 @@ public class Column implements Movable{
 
     @Override
     public void move(Direction direction) {
-        top.move(direction);
-        bottom.move(direction);
-        gap.move(direction);
-    }
-
-    @Override
-    public void stop() {
-        top.stop();
-        bottom.stop();
-        gap.stop();
+        if(!stopped) {
+            top.move(direction);
+            bottom.move(direction);
+            gap.move(direction);
+        }
     }
 
     @Override
@@ -94,5 +93,28 @@ public class Column implements Movable{
         top.reset();
         bottom.reset();
         gap.reset();
+        this.resume();
+    }
+
+    //Stoppable
+    @Override
+    public void stop() {
+        stopped = true;
+        top.stop();
+        bottom.stop();
+        gap.stop();
+    }
+
+    @Override
+    public void resume() {
+        stopped = false;
+        top.resume();
+        bottom.resume();
+        gap.resume();
+    }
+
+    @Override
+    public boolean isStopped(){
+        return stopped;
     }
 }

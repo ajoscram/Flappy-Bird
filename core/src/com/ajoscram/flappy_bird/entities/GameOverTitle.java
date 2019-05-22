@@ -17,7 +17,7 @@ public class GameOverTitle extends Entity implements Drawable {
 
         this.width = texture.getWidth();
         this.height = texture.getHeight();
-
+        this.stopped = true;
         this.velocity = 0;
     }
 
@@ -25,6 +25,13 @@ public class GameOverTitle extends Entity implements Drawable {
         return texture.getHeight();
     }
 
+    @Override
+    public void reset(){
+        super.reset();
+        stop();
+    }
+
+    //Drawable
     @Override
     public void draw(Batch batch){
         batch.draw(texture, x, y);

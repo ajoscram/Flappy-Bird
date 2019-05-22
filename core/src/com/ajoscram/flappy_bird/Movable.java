@@ -5,6 +5,5 @@ public interface Movable {
 
     void accelerate(float amount);
     void move(Direction direction);
-    void stop();
     void reset();
 }
