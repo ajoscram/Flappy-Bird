@@ -19,22 +19,9 @@ import java.util.Stack;
 
 public final class PlayScene extends Scene {
 
-    public enum Difficulty{ EASY, NORMAL, HARD }
-
-    //difficulty - easy
-    private static final float EASY_HORIZONTAL_GAP = 550;
-    private static final float EASY_VERTICAL_GAP = 600;
-    private static final float EASY_COLUMN_VELOCITY = -8;
-
-    //difficulty - normal
-    private static final float NORMAL_HORIZONTAL_GAP = 550;
-    private static final float NORMAL_VERTICAL_GAP = 600;
-    private static final float NORMAL_COLUMN_VELOCITY = -11;
-
-    //difficulty - hard
-    private static final float HARD_HORIZONTAL_GAP = 550;
-    private static final float HARD_VERTICAL_GAP = 550;
-    private static final float HARD_COLUMN_VELOCITY = -13;
+    private static final float HORIZONTAL_GAP = 550;
+    private static final float VERTICAL_GAP = 600;
+    private static final float COLUMN_VELOCITY = -11;
 
     //difficulty
     private float horizontalGap;
@@ -64,23 +51,13 @@ public final class PlayScene extends Scene {
     private ArrayList<Collidable> obstacles;
     private ArrayList<Collidable> targets;
 
-    public PlayScene(SceneManager manager, Difficulty difficulty){
+    public PlayScene(SceneManager manager){
         super(manager);
 
         //difficulty
-        if(difficulty == Difficulty.EASY) {
-            this.verticalGap = EASY_VERTICAL_GAP;
-            this.columnVelocity = EASY_COLUMN_VELOCITY;
-            this.horizontalGap = EASY_HORIZONTAL_GAP;
-        } else if(difficulty == Difficulty.NORMAL) {
-            this.verticalGap = NORMAL_VERTICAL_GAP;
-            this.columnVelocity = NORMAL_COLUMN_VELOCITY;
-            this.horizontalGap = NORMAL_HORIZONTAL_GAP;
-        } else if(difficulty == Difficulty.HARD) {
-            this.verticalGap = HARD_VERTICAL_GAP;
-            this.columnVelocity = HARD_COLUMN_VELOCITY;
-            this.horizontalGap = HARD_HORIZONTAL_GAP;
-        }
+        this.verticalGap = VERTICAL_GAP;
+        this.columnVelocity = COLUMN_VELOCITY;
+        this.horizontalGap = HORIZONTAL_GAP;
 
         //default
         verticalGapBound = 100;
