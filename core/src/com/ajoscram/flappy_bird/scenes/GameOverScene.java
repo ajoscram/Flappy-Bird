@@ -3,6 +3,7 @@ package com.ajoscram.flappy_bird.scenes;
 import com.ajoscram.flappy_bird.Movable;
 import com.ajoscram.flappy_bird.entities.widgets.Button;
 import com.ajoscram.flappy_bird.entities.widgets.Image;
+import com.ajoscram.flappy_bird.entities.widgets.labels.Label;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
 public class GameOverScene extends Scene {
@@ -14,7 +15,11 @@ public class GameOverScene extends Scene {
     private Button replayButton;
     private Button menuButton;
 
-    public GameOverScene(SceneManager manager, PlayScene parent){
+    //High Score
+    private Image highScore;
+    private int highScoreCount;
+
+    public GameOverScene(SceneManager manager, PlayScene parent, boolean highScore){
         super(manager);
         this.parent = parent;
 
@@ -34,6 +39,9 @@ public class GameOverScene extends Scene {
         menuButton.setY(menuButton.getY() - height);
         menuButton.setStartingY(menuButton.getY() - height);
         menuButton.accelerate(acceleration);
+
+        if(highScore)
+            this.highScore = new Image(width / 2, height / 12 * 9, true, "high_score.png");
     }
 
     @Override
@@ -65,6 +73,9 @@ public class GameOverScene extends Scene {
         title.draw(batch);
         replayButton.draw(batch);
         menuButton.draw(batch);
+
+        if(highScore != null && highScoreCount++ % 60 > 30)
+            highScore.draw(batch);
     }
 
     @Override

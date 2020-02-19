@@ -32,7 +32,7 @@ public class ScoresScene extends Scene {
             for (String[] score : scores) {
                 String value = score[0];
                 String date = score[1];
-                rows.add(new ScoreRow(width / 12, height / 12 * (4.5f - count), width / 12 * 10, count + 1, value, date, font));
+                rows.add(new ScoreRow(width / 12, height / 12 * (9 - count), width / 12 * 10, count + 1, value, date, font));
                 count++;
             }
         }

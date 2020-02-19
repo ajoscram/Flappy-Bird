@@ -4,6 +4,7 @@ import com.ajoscram.flappy_bird.Collidable;
 import com.ajoscram.flappy_bird.Column;
 import com.ajoscram.flappy_bird.Drawable;
 import com.ajoscram.flappy_bird.Movable;
+import com.ajoscram.flappy_bird.Scores;
 import com.ajoscram.flappy_bird.entities.Bird;
 import com.ajoscram.flappy_bird.entities.Boundary;
 import com.ajoscram.flappy_bird.entities.widgets.Button;
@@ -147,7 +148,8 @@ public final class PlayScene extends Scene {
             }
         } else {
             this.stop();
-            manager.push(new GameOverScene(manager, this));
+            boolean highScore = Scores.add(score.getScore());
+            manager.push(new GameOverScene(manager, this, highScore));
         }
     }
 

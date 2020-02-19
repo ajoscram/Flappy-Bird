@@ -13,6 +13,10 @@ public class Score extends Label {
         this.scoring = false;
     }
 
+    public int getScore(){
+        return score;
+    }
+
     public void score(){
         if(!scoring) {
             scoring = true;
