@@ -80,7 +80,7 @@ public final class PlayScene extends Scene {
         push = 25f;
         maxBirdVelocity = 50f;
         birdFlapSpeed = 10;
-        columnNumber = 2;
+        columnNumber = 3;
         lastColumnIndex = columnNumber - 1;
 
         //debugging
@@ -155,7 +155,11 @@ public final class PlayScene extends Scene {
         if(hasAccelerometer && wasShook()){
             this.stop();
             manager.push(new PauseScene(manager, this));
-        } else if(!bird.collides(obstacles)){
+        } else if(bird.collides(obstacles)) {
+            this.stop();
+            boolean highScore = Scores.add(score.getScore());
+            manager.push(new GameOverScene(manager, this, highScore));
+        } else {
             //check for scoring
             if(bird.collides(targets))
                 score.score();
@@ -180,10 +184,6 @@ public final class PlayScene extends Scene {
                 else
                     column.move(Movable.Direction.X);
             }
-        } else {
-            this.stop();
-            boolean highScore = Scores.add(score.getScore());
-            manager.push(new GameOverScene(manager, this, highScore));
         }
     }
 

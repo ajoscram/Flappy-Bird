@@ -48,7 +48,6 @@ public abstract class Scores {
             FileHandle file = Gdx.files.local(SCORES_FILE);
             String scoreStr = Integer.toString(score);
             String dateStr = new SimpleDateFormat(DATE_FORMAT).format(new Date());
-            Gdx.app.log("FLAPPER", scoreStr + FIELD_SPLITTER + dateStr);
 
             //if the file doesn't exist, then create it
             if (!file.exists()){
@@ -84,6 +83,6 @@ public abstract class Scores {
                 }
             }
         }
-        return true;
+        return false;
     }
 }
