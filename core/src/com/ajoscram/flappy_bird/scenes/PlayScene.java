@@ -80,7 +80,7 @@ public final class PlayScene extends Scene {
         push = 25f;
         maxBirdVelocity = 50f;
         birdFlapSpeed = 10;
-        columnNumber = 3;
+        columnNumber = 2;
         lastColumnIndex = columnNumber - 1;
 
         //debugging
