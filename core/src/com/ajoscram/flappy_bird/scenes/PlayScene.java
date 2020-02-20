@@ -7,9 +7,9 @@ import com.ajoscram.flappy_bird.Movable;
 import com.ajoscram.flappy_bird.Scores;
 import com.ajoscram.flappy_bird.entities.Bird;
 import com.ajoscram.flappy_bird.entities.Boundary;
-import com.ajoscram.flappy_bird.entities.widgets.Button;
 import com.ajoscram.flappy_bird.entities.widgets.labels.Score;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -23,11 +23,18 @@ public final class PlayScene extends Scene {
     private static final float HORIZONTAL_GAP = 550;
     private static final float VERTICAL_GAP = 600;
     private static final float COLUMN_VELOCITY = -11;
+    private static final float ACCEL_BOUND = 10;
 
     //difficulty
     private float horizontalGap;
     private float verticalGap;
     private float columnVelocity;
+
+    //pause controls
+    private boolean hasAccelerometer;
+    private float accelX;
+    private float accelY;
+    private float accelZ;
 
     //default
     private float verticalGapBound;
@@ -44,7 +51,6 @@ public final class PlayScene extends Scene {
     private Color targetColor;
 
     //entities
-    private Button pauseButton;
     private Score score;
     private Bird bird;
     private ArrayList<Column> columns;
@@ -59,6 +65,14 @@ public final class PlayScene extends Scene {
         this.verticalGap = VERTICAL_GAP;
         this.columnVelocity = COLUMN_VELOCITY;
         this.horizontalGap = HORIZONTAL_GAP;
+
+        //pause controls
+        hasAccelerometer = Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer);
+        if(hasAccelerometer) {
+            this.accelX = Gdx.input.getAccelerometerX();
+            this.accelY = Gdx.input.getAccelerometerY();
+            this.accelZ = Gdx.input.getAccelerometerZ();
+        }
 
         //default
         verticalGapBound = 100;
@@ -75,7 +89,6 @@ public final class PlayScene extends Scene {
         targetColor = new Color(0, 1, 0, 0.5f);
 
         //entities
-        pauseButton = new Button(width/12*10, height/12*1, true, "btn_pause.png");
         score = new Score(width/2, (height/10)*9, new BitmapFont(Gdx.files.internal("fonts/score.fnt")));
         bird = new Bird(width/4, height/2, maxBirdVelocity, birdFlapSpeed);
         columns = getColumns(columnNumber);
@@ -100,7 +113,6 @@ public final class PlayScene extends Scene {
             targets.add(column.getGap());
         }
         //finally pushing drawn elements on top of other drawables
-        drawables.push(pauseButton);
         drawables.push(score);
     }
 
@@ -116,9 +128,31 @@ public final class PlayScene extends Scene {
         return columns;
     }
 
+    public void  updateDeviceAcceleration(){
+        //refresh the device acceleration values
+        accelX = Gdx.input.getAccelerometerX();
+        accelY = Gdx.input.getAccelerometerY();
+        accelZ = Gdx.input.getAccelerometerZ();
+    }
+
+    public boolean wasShook(){
+        //get the difference
+        float deltaX = Math.abs(accelX - Gdx.input.getAccelerometerX());
+        float deltaY = Math.abs(accelY - Gdx.input.getAccelerometerY());
+        float deltaZ = Math.abs(accelZ - Gdx.input.getAccelerometerZ());
+
+        updateDeviceAcceleration();
+
+        //if greater than the bound, return true
+        if(deltaX > ACCEL_BOUND || deltaY > ACCEL_BOUND || deltaZ > ACCEL_BOUND)
+            return true;
+        else
+            return false;
+    }
+
     @Override
     public void update() {
-        if(pauseButton.isClicked()){
+        if(hasAccelerometer && wasShook()){
             this.stop();
             manager.push(new PauseScene(manager, this));
         } else if(!bird.collides(obstacles)){
@@ -170,7 +204,6 @@ public final class PlayScene extends Scene {
     @Override
     public void draw(Batch batch) {
         for(Drawable drawable : drawables)
-            if(!this.isStopped() || (this.isStopped() && drawable != pauseButton))
                 drawable.draw(batch);
     }
 

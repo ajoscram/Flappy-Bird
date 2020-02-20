@@ -4,6 +4,8 @@ import com.ajoscram.flappy_bird.Movable;
 import com.ajoscram.flappy_bird.entities.widgets.Button;
 import com.ajoscram.flappy_bird.entities.widgets.Image;
 import com.ajoscram.flappy_bird.entities.widgets.labels.Label;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
 public class GameOverScene extends Scene {
@@ -18,6 +20,7 @@ public class GameOverScene extends Scene {
     //High Score
     private Image highScore;
     private int highScoreCount;
+    private Sound highScoreSound;
 
     public GameOverScene(SceneManager manager, PlayScene parent, boolean highScore){
         super(manager);
@@ -40,8 +43,10 @@ public class GameOverScene extends Scene {
         menuButton.setStartingY(menuButton.getY() - height);
         menuButton.accelerate(acceleration);
 
-        if(highScore)
+        if(highScore) {
             this.highScore = new Image(width / 2, height / 12 * 9, true, "high_score.png");
+            this.highScoreSound = Gdx.audio.newSound(Gdx.files.internal("high_score.mp3"));
+        }
     }
 
     @Override
@@ -74,8 +79,13 @@ public class GameOverScene extends Scene {
         replayButton.draw(batch);
         menuButton.draw(batch);
 
-        if(highScore != null && highScoreCount++ % 60 > 30)
+        if(highScoreSound != null && highScoreCount % 60 == 30){
+            highScoreSound.play(0.3f);
+        }
+
+        if(highScore != null && highScoreCount++ % 60 > 30) {
             highScore.draw(batch);
+        }
     }
 
     @Override

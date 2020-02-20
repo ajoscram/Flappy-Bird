@@ -25,6 +25,7 @@ public class PauseScene extends Scene{
 
     @Override
     public void update() {
+        parent.updateDeviceAcceleration();
         if(Gdx.input.justTouched())
             manager.pop();
     }

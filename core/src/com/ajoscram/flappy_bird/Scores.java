@@ -84,6 +84,6 @@ public abstract class Scores {
                 }
             }
         }
-        return false;
+        return true;
     }
 }
